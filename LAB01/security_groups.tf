@@ -6,12 +6,29 @@ resource "aws_security_group" "lab_sg" {
 
   ingress {
 
+    #SSH
     from_port = 22
     to_port   = 22
     protocol  = "tcp"
 
     cidr_blocks = ["190.18.171.24/32"]
 
+  }
+
+  # Juice Shop
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["190.18.171.24/32"]
+  }
+
+  # Vulnerable API
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["190.18.171.24/32"]
   }
 
   egress {
