@@ -1,19 +1,22 @@
-output "c2_public_ip" {
+output "redirector_ip" {
 
-  value = aws_instance.c2_server.public_ip
-
+  description = "Elastic IP assigned to the AWS redirector"
+  value       = local.redirector_ip
 }
 
-output "target_public_ip" {
+output "payload_bucket_url" {
 
-  value = aws_instance.linux_target.public_ip
-
+  description = "S3 bucket endpoint used for payload hosting"
+  value       = local.payload_bucket_domain_name
 }
 
-output "c2_public_dns" {
-  value = aws_instance.c2_server.public_dns
+output "lab_domain" {
+
+  description = "Fronting domain used by the Nyxera lab"
+  value       = var.lab_domain
 }
 
-output "certbot_domains" {
-  value = var.certbot_domains
+output "target_lab_ip" {
+  description = "Live public IP for the vulnerable target lab instance"
+  value       = aws_instance.target_lab.public_ip
 }

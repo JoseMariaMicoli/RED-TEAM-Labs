@@ -8,7 +8,10 @@ export HOME=/root
 readonly GO_VERSION="1.25.0"
 readonly SWAP_FILE="/swapfile"
 readonly TMP_DIR="/tmp/c2-install"
-readonly CERT_CONF="/etc/nginx/conf.d/c2-proxy.conf"
+readonly NGINX_CONF="/etc/nginx/nginx.conf"
+readonly STREAM_DIR="/etc/nginx/stream.d"
+readonly STREAM_CONF="${STREAM_DIR}/c2-stream.conf"
+readonly MSFRPCD_PASSWORD="${MSFRPCD_PASSWORD:-RedTeam123}"
 readonly SLIVER_VERSION="v1.7.3"
 readonly SLIVER_ASSET="sliver-server_linux-amd64"
 
@@ -148,38 +151,162 @@ install_havoc() {
   mkdir -p "${GOCACHE}"
   GOMAXPROCS=1 GOGC=50 make ts-build
 
+  update_havoc_profile
+  write_havoc_helper
+}
+
+ensure_stream_include() {
+  local include_line="include /etc/nginx/stream.d/*.conf;"
+  if grep -qF "${include_line}" "${NGINX_CONF}"; then
+    return
+  fi
+
+  python3 <<PY
+from pathlib import Path
+
+path = Path("${NGINX_CONF}")
+text = path.read_text()
+line = "${include_line}"
+if line in text:
+    raise SystemExit
+marker = "http {"
+if marker not in text:
+    raise SystemExit("missing http block")
+idx = text.index(marker)
+text = text[:idx] + line + "\n\n" + text[idx:]
+path.write_text(text)
+PY
+}
+
+write_stream_proxy() {
+  mkdir -p "${STREAM_DIR}"
+  cat <<'EOF' > "${STREAM_CONF}"
+stream {
+    upstream sliver_stream {
+        server 127.0.0.1:31337;
+    }
+
+    upstream havoc_stream {
+        server 127.0.0.1:4444;
+    }
+
+    upstream metasploit_stream {
+        server 127.0.0.1:55553;
+    }
+
+    server {
+        listen 443;
+        proxy_pass sliver_stream;
+        proxy_timeout 300s;
+        proxy_connect_timeout 10s;
+    }
+
+    server {
+        listen 8443;
+        proxy_pass havoc_stream;
+        proxy_timeout 300s;
+        proxy_connect_timeout 10s;
+    }
+
+    server {
+        listen 5555;
+        proxy_pass metasploit_stream;
+        proxy_timeout 300s;
+        proxy_connect_timeout 10s;
+    }
+}
+EOF
+}
+
+configure_nginx() {
+  info "Configuring nginx stream proxy"
+  rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
+  write_stream_proxy
+  ensure_stream_include
+  nginx -t
+  systemctl enable --now nginx
+}
+
+update_havoc_profile() {
+  local profile="/opt/havoc/profiles/havoc.yaotl"
+  if [ -f "${profile}" ]; then
+    perl -0pi -e 's/Port = \d+/Port = 4444/' "${profile}"
+  fi
+}
+
+write_havoc_helper() {
   cat <<'EOF' > /usr/local/bin/havoc-ts
 #!/bin/bash
 cd /opt/havoc
-./havoc server --profile profiles/havoc.yaotl --port 8080 --debug
+./havoc server --profile profiles/havoc.yaotl --debug
 EOF
   chmod +x /usr/local/bin/havoc-ts
 }
 
-configure_nginx() {
-  info "Configuring nginx reverse proxy over HTTP"
-  rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
-  cat <<EOF > "${CERT_CONF}"
-upstream c2_back {
-    server 127.0.0.1:8080;
-}
+configure_sliver_service() {
+  info "Configuring systemd service for Sliver"
+  cat <<EOF >/etc/systemd/system/sliver-server.service
+[Unit]
+Description=Sliver C2 teamserver
+After=network.target
 
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    server_name _;
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/sliver-server daemon -p 31337
+Restart=on-failure
+RestartSec=5
 
-    location / {
-        proxy_pass http://c2_back;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-}
+[Install]
+WantedBy=multi-user.target
 EOF
-  nginx -t
-  systemctl enable --now nginx
+}
+
+configure_metasploit_service() {
+  info "Configuring systemd service for Metasploit RPC"
+  cat <<EOF >/etc/systemd/system/metasploit.service
+[Unit]
+Description=Metasploit RPC daemon
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/msfrpcd -f -P ${MSFRPCD_PASSWORD} -a 127.0.0.1 -p 55553 -U msf --ssl
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+}
+
+configure_havoc_service() {
+  info "Configuring systemd service for Havoc"
+  cat <<EOF >/etc/systemd/system/havoc-ts.service
+[Unit]
+Description=Havoc teamserver
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/havoc
+ExecStart=/usr/local/bin/havoc-ts
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+}
+
+configure_services() {
+  configure_sliver_service
+  configure_metasploit_service
+  configure_havoc_service
+  systemctl daemon-reload
+  systemctl enable --now sliver-server metasploit havoc-ts
 }
 
 install_certbot_cert() {
@@ -220,6 +347,7 @@ main() {
   install_metasploit
   install_havoc
   configure_nginx
+  configure_services
   install_certbot_cert
   install_docker
   cleanup
