@@ -35,3 +35,8 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Cloudflare tunnel credentials and SSH keys
+cloudflared/*.json
+cloudflared/*.yaml
+*.pem
