@@ -19,6 +19,8 @@ This design mirrors techniques used by modern adversaries and professional red t
 
 The lab uses multiple infrastructure layers to simulate realistic adversary operations while maintaining strong operational isolation.
 
+![Nyxera Adversary Simulation Lab Infrastructure](Adversary-Sim-Lab-Infra.png)
+
 ```
 Victim
   │
