@@ -6,6 +6,13 @@ The project deploys a **layered command-and-control redirector architecture** us
 
 This design mirrors techniques used by modern adversaries and professional red teams to separate **command infrastructure from cloud-facing components**.
 
+## Quick Links
+
+* Docs index: `docs/README.md`
+* User guide (step-by-step): `docs/user-guide/README.md`
+* Architecture (deep dive): `docs/ARCHITECTURE.md`
+* Responsible use / policy: `docs/SECURITY.md`
+
 ---
 
 # Architecture Overview
@@ -57,10 +64,13 @@ Key capabilities of the lab environment include:
 
 * layered redirector architecture (Cloudflare → Tunnel → AWS redirector)
 * encrypted operator tunnel (WireGuard redirector ↔ operator)
-* payload staging infrastructure (S3 bucket)
+* private-by-default payload staging (S3 + short-lived presigned URLs)
+* staging inventory + download placeholders (docs + helper script)
 * vulnerable target lab services (LAB01 linux01)
 * internal lateral movement simulation (LAB01 linux01 → linux02)
 * Windows “company” environment for AD exercises (LAB02)
+* CTF-style rotating flags + dummy-but-realistic case artifacts (LAB01/LAB02)
+* APT-aligned campaign playbooks (APT28/APT29/Lazarus)
 * reproducible infrastructure-as-code deployment (Terraform stacks)
 
 The design allows testing offensive tooling in a controlled environment without exposing real command infrastructure.
@@ -179,6 +189,35 @@ Example:
 
 ---
 
+# S3 Staging (Presigned URLs Only)
+
+This repository is set up to avoid public bucket/object exposure by using short-lived presigned URLs.
+
+Default bucket name:
+
+* `redteam-lab-payloads`
+
+Generate a 15-minute presigned URL list from the inventory:
+
+1) (Optional) Confirm the bucket name from Terraform:
+
+```
+terraform -chdir=RED-TEAM-Labs/CORE output -raw payloads_bucket_name
+```
+
+2) Generate presigned URLs (15 minutes / 900s):
+
+```
+scripts/presign_from_inventory.sh --bucket redteam-lab-payloads
+```
+
+See:
+
+* `docs/user-guide/07-s3-staging.md`
+* `docs/beacon_commands.txt`
+
+---
+
 # Deployment
 
 The infrastructure is deployed using Terraform. Deploy `CORE` first, then deploy `LAB01` and/or `LAB02`.
@@ -258,19 +297,25 @@ This lab can be used for:
 
 Additional documentation:
 
+* `docs/README.md` – documentation index
 * `docs/ARCHITECTURE.md` – detailed infrastructure design and deployment notes
 * `docs/SECURITY.md` – responsible use policy
 * `docs/user-guide/README.md` – lab user guide (operator workflow + exercises index)
 
 ---
 
-# Disclaimer
+# Legal Disclaimer
 
-This project is intended **strictly for defensive security research, red team training, and controlled laboratory environments**.
+This project is provided **for authorized security training, defensive research, and controlled laboratory environments only**.
 
-The authors are not responsible for misuse of this infrastructure outside authorized environments.
+You are solely responsible for:
 
-Users are responsible for complying with all applicable laws and regulations.
+* obtaining explicit authorization before any security testing
+* complying with all applicable laws, regulations, contracts, and third-party terms of service
+* securing and operating any infrastructure you deploy
+
+This software and documentation are provided **“AS IS”**, without warranty of any kind (express or implied).
+To the maximum extent permitted by law, the authors and contributors disclaim all liability for damages arising from the use or misuse of this project.
 
 ---
 
