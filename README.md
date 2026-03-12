@@ -1,6 +1,6 @@
-# Nyxera Red Team Lab
+# Nyxera Adversary Simulation Lab
 
-Nyxera Red Team Lab is a **hybrid adversary infrastructure simulation environment** designed for offensive security research, red team training, and infrastructure experimentation.
+Nyxera Adversary Simulation Lab is a **hybrid adversary infrastructure simulation environment** designed for offensive security research, red team training, and infrastructure experimentation.
 
 The project deploys a **layered command-and-control redirector architecture** using Terraform while keeping the actual C2 infrastructure isolated on the operator machine.
 

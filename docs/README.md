@@ -1,6 +1,6 @@
 # Documentation Index
 
-This folder contains the primary documentation for **Nyxera Red Team Lab**.
+This folder contains the primary documentation for **Nyxera Adversary Simulation Lab**.
 
 ## Start Here
 

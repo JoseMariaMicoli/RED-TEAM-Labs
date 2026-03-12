@@ -4,7 +4,7 @@
 
 ## Responsible Use
 
-Nyxera Red Team Lab is designed for **offensive security research, red team training, and controlled laboratory environments**.
+Nyxera Adversary Simulation Lab is designed for **offensive security research, red team training, and controlled laboratory environments**.
 
 The project must only be used in environments where the user has **explicit authorization to perform security testing**.
 

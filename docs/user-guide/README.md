@@ -1,6 +1,6 @@
-# Nyxera Red Team Lab — User Guide
+# Nyxera Adversary Simulation Lab — User Guide
 
-This user guide is a **lab-only, operator-focused** walkthrough for deploying and using Nyxera Red Team Lab.
+This user guide is a **lab-only, operator-focused** walkthrough for deploying and using Nyxera Adversary Simulation Lab.
 
 It is written for **authorized training environments** and assumes you control the AWS account and Cloudflare zone used by the lab.
 

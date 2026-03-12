@@ -1,4 +1,4 @@
-# Nyxera Red Team Lab Architecture
+# Nyxera Adversary Simulation Lab Architecture
 
 <!-- This documentation lives under docs/. -->
 
