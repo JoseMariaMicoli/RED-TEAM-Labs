@@ -9,6 +9,7 @@ $adminPasswordPlain = "${windows_admin_password}"
 $itUser = "${win10_01_user}"
 $itUserPasswordPlain = "${win10_01_user_password}"
 $netbios = $domain.Split(".")[0].ToUpper()
+$flagApt29Lab02_2 = "${flag_apt29_lab02_2}"
 
 function Set-AdministratorPassword([string]$plain) {
   $secure = ConvertTo-SecureString $plain -AsPlainText -Force
@@ -85,6 +86,29 @@ if ($env:COMPUTERNAME -ne $hostname) {
 }
 
 Install-WindowsFeature AD-Domain-Services, DNS -IncludeManagementTools
+
+# Seed lab-only artifacts and flags (rotating per deployment).
+$caseDir = "C:\\ProgramData\\Nyxera\\LAB02\\Case"
+$flagDir = "C:\\ProgramData\\Nyxera\\LAB02\\Flags"
+New-Item -ItemType Directory -Path $caseDir -Force | Out-Null
+New-Item -ItemType Directory -Path $flagDir -Force | Out-Null
+
+@"
+LAB02 Domain Controller (Lab-Only)
+
+This environment is designed for APT-aligned training playbooks.
+Do not reuse artifacts, credentials, or tooling outside an authorized lab.
+"@ | Set-Content -Path (Join-Path $caseDir "README.txt") -Encoding UTF8 -Force
+
+$flagApt29Lab02_2 | Set-Content -Path (Join-Path $flagDir "APT29-LAB02-2.flag") -Encoding UTF8 -Force
+
+@"
+LumenWorks (Dummy) - Directory Services Notes
+
+- Domain: $domain
+- NetBIOS: $netbios
+- Lab objective: keep a clean evidence trail (timeline + artifacts) and validate rotating flags operator-side.
+"@ | Set-Content -Path (Join-Path $caseDir "directory-services-notes.txt") -Encoding UTF8 -Force
 
 if ($dsrm -ne "") {
   Write-PostAdScript

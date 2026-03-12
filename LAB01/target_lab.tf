@@ -80,6 +80,8 @@ resource "aws_instance" "target_lab" {
     nfs_mount_path      = "/mnt/ops-share"
     nfs_export_path     = "/srv/ops-share"
     enable_password_ssh = true
+    flag_apt28_lab01_1  = local.lab01_flags["APT28-LAB01-1"]
+    flag_apt29_lab01_1  = local.lab01_flags["APT29-LAB01-1"]
   })
 
   root_block_device {

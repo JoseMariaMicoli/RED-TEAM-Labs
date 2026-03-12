@@ -11,6 +11,8 @@ readonly DEVOPS_PASSWORD="${devops_password}"
 readonly NFS_SERVER_IP="${nfs_server_ip}"
 readonly NFS_EXPORT_PATH="${nfs_export_path}"
 readonly NFS_MOUNT_PATH="${nfs_mount_path}"
+readonly FLAG_APT28_LAB01_1="${flag_apt28_lab01_1}"
+readonly FLAG_APT29_LAB01_1="${flag_apt29_lab01_1}"
 
 wait_for_apt() {
   local attempts=0
@@ -147,6 +149,41 @@ bring_up() {
   (cd "$${TARGET_DIR}/crapi" && docker-compose up -d)
 }
 
+seed_case_data() {
+  info "Seeding lab-only case files and rotating flags"
+  mkdir -p /opt/nyxera/cases /opt/nyxera/flags
+
+  cat <<'EOF' >/opt/nyxera/cases/README.md
+# LAB01 linux01 - Case Artifacts (Lab-Only)
+
+This host intentionally runs vulnerable applications for training:
+- OWASP Juice Shop (3000)
+- VAmPI (5000)
+- OWASP crAPI (8888)
+
+This directory contains dummy artifacts and rotating flags for the APT-aligned exercises.
+EOF
+
+  cat <<EOF >/opt/nyxera/flags/APT28-LAB01-1.flag
+$${FLAG_APT28_LAB01_1}
+EOF
+
+  cat <<EOF >/opt/nyxera/flags/APT29-LAB01-1.flag
+$${FLAG_APT29_LAB01_1}
+EOF
+
+  # Hint artifacts: dummy-but-realistic operator notes that point into the lab's internal share.
+  cat <<'EOF' >/opt/nyxera/cases/it-helpdesk-ticket.txt
+Ticket: INC-10492
+Summary: Finance share access issues after maintenance window.
+Notes:
+- Internal ops share is mounted at /mnt/ops-share when available.
+- Escalate to IT if mount is missing.
+EOF
+
+  chmod -R 0755 /opt/nyxera
+}
+
 main() {
   install_packages
   systemctl enable --now docker
@@ -157,6 +194,7 @@ main() {
   configure_apps_compose
   configure_crapi
   bring_up
+  seed_case_data
   info "Target lab bootstrap completed"
 }
 

@@ -8,6 +8,9 @@ $adminPasswordPlain = "${windows_admin_password}"
 $adminOverPeer = "${admin_over_peer}"
 $peerAdminUser = "${peer_admin_user}"
 $netbios = $domain.Split(".")[0].ToUpper()
+$flagApt28Lab02_1 = "${flag_apt28_lab02_1}"
+$flagApt29Lab02_1 = "${flag_apt29_lab02_1}"
+$flagLazarusLab02_1 = "${flag_lazarus_lab02_1}"
 
 function Set-AdministratorPassword([string]$plain) {
   $secure = ConvertTo-SecureString $plain -AsPlainText -Force
@@ -98,4 +101,53 @@ Write-Host "Configuring LAB02 Windows workstation: $hostname"
 Set-AdministratorPassword $adminPasswordPlain
 Set-Dns $dcIp
 Ensure-JoinTask
+
+# Seed lab-only artifacts and flags (rotating per deployment).
+$caseDir = "C:\\ProgramData\\Nyxera\\LAB02\\Case"
+$flagDir = "C:\\ProgramData\\Nyxera\\LAB02\\Flags"
+New-Item -ItemType Directory -Path $caseDir -Force | Out-Null
+New-Item -ItemType Directory -Path $flagDir -Force | Out-Null
+
+@"
+LAB02 Workstation (Lab-Only)
+
+This host contains dummy-but-realistic artifacts for APT-aligned exercises.
+"@ | Set-Content -Path (Join-Path $caseDir "README.txt") -Encoding UTF8 -Force
+
+@"
+Host: $hostname
+Domain: $domain
+Role: workstation
+
+Notes (Dummy):
+- Keep artifacts and flags lab-only.
+- Validate flags operator-side using the per-deployment seed from Terraform.
+"@ | Set-Content -Path (Join-Path $caseDir "host-profile.txt") -Encoding UTF8 -Force
+
+if ($flagApt28Lab02_1 -ne "") {
+  $flagApt28Lab02_1 | Set-Content -Path (Join-Path $flagDir "APT28-LAB02-1.flag") -Encoding UTF8 -Force
+}
+if ($flagApt29Lab02_1 -ne "") {
+  $flagApt29Lab02_1 | Set-Content -Path (Join-Path $flagDir "APT29-LAB02-1.flag") -Encoding UTF8 -Force
+
+  @"
+IT Support Notes (Dummy)
+
+- Workstation build checklist
+- Domain troubleshooting hints
+- Internal naming: LumenWorks
+"@ | Set-Content -Path (Join-Path $caseDir "it-support-notes.txt") -Encoding UTF8 -Force
+}
+if ($flagLazarusLab02_1 -ne "") {
+  $flagLazarusLab02_1 | Set-Content -Path (Join-Path $flagDir "LAZARUS-LAB02-1.flag") -Encoding UTF8 -Force
+
+  @"
+Finance Ops (Dummy)
+
+Quarterly close checklist:
+- Validate approvals
+- Prepare transfer templates
+- Archive reports
+"@ | Set-Content -Path (Join-Path $caseDir "finance-ops-notes.txt") -Encoding UTF8 -Force
+}
 </powershell>

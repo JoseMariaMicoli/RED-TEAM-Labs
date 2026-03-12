@@ -11,10 +11,12 @@ resource "aws_instance" "linux02" {
   key_name = data.aws_key_pair.lab_key.key_name
 
   user_data = templatefile("${path.module}/userdata/linux02_bootstrap.sh.tpl", {
-    devops_password   = var.devops_password
-    nfs_export_cidr   = data.aws_vpc.lab.cidr_block
-    nfs_export_path   = "/srv/ops-share"
-    nfs_mount_address = var.linux02_private_ip
+    devops_password      = var.devops_password
+    nfs_export_cidr      = data.aws_vpc.lab.cidr_block
+    nfs_export_path      = "/srv/ops-share"
+    nfs_mount_address    = var.linux02_private_ip
+    flag_apt29_lab01_2   = local.lab01_flags["APT29-LAB01-2"]
+    flag_lazarus_lab01_1 = local.lab01_flags["LAZARUS-LAB01-1"]
   })
 
   root_block_device {

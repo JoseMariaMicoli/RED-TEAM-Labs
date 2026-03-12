@@ -19,8 +19,8 @@ Victim
 lab.nyxera.cloud
   │
   ▼
-Cloudflare Edge
-(DNS + CDN + WAF)
+Cloudflare Edge Network
+(DNS + CDN + WAF + TLS)
   │
   ▼
 Cloudflare Tunnel
@@ -35,7 +35,16 @@ WireGuard Tunnel
 Operator Laptop
   │
   ▼
-Havoc / Sliver C2
+Sliver / Havoc C2
+  │
+  ▼
+Compromised Host (LAB01 linux01)
+  │
+  ▼
+Internal Pivot
+  │
+  ▼
+Internal Host (LAB01 linux02)
 ```
 
 The real command-and-control servers **never run in cloud infrastructure**.
@@ -46,14 +55,28 @@ The real command-and-control servers **never run in cloud infrastructure**.
 
 Key capabilities of the lab environment include:
 
-* layered redirector architecture
-* CDN masking via Cloudflare
-* encrypted operator tunnels
-* payload staging infrastructure
-* vulnerable application targets
-* infrastructure-as-code deployment
+* layered redirector architecture (Cloudflare → Tunnel → AWS redirector)
+* encrypted operator tunnel (WireGuard redirector ↔ operator)
+* payload staging infrastructure (S3 bucket)
+* vulnerable target lab services (LAB01 linux01)
+* internal lateral movement simulation (LAB01 linux01 → linux02)
+* Windows “company” environment for AD exercises (LAB02)
+* reproducible infrastructure-as-code deployment (Terraform stacks)
 
 The design allows testing offensive tooling in a controlled environment without exposing real command infrastructure.
+
+---
+
+# Terraform Layout (CORE / LAB01 / LAB02)
+
+This repo is split into independent Terraform stacks (separate state per folder):
+
+* `CORE` (persistent) → shared VPC/subnet/routes, redirector + Elastic IP association, payload bucket
+* `LAB01` (ephemeral) → Linux targets (initial foothold + lateral target)
+* `LAB02` (ephemeral) → Windows target company environment (DC/DNS + workstations)
+
+Only tear down the labs with `terraform destroy` in `LAB01` and/or `LAB02`.
+`CORE` is designed to stay up (EIP + bucket) to keep external references stable.
 
 ---
 
@@ -68,7 +91,7 @@ Typical components:
 * Havoc C2
 * Sliver C2
 * WireGuard client
-* exploitation tooling
+* supporting tooling (Terraform, AWS CLI)
 
 All C2 communications terminate on the operator machine.
 
@@ -151,14 +174,14 @@ Typical use cases:
 Example:
 
 ```
-https://redteam-lab-payloads.s3.amazonaws.com/payload.exe
+<PRESIGNED_URL_TO_payload.exe>
 ```
 
 ---
 
 # Deployment
 
-The infrastructure is deployed using Terraform.
+The infrastructure is deployed using Terraform. Deploy `CORE` first, then deploy `LAB01` and/or `LAB02`.
 
 ### Initialize Terraform
 
@@ -188,22 +211,23 @@ After deployment Terraform will output:
 
 * redirector IP
 * payload bucket URL
-* target lab IP
+* lab public IPs (Linux and/or Windows)
+
+Important configuration notes:
+
+* LAB01 target SSH is intentionally limited to `ssh_cidr_blocks` (operator) plus the VPC CIDR (for linux01 → linux02 lateral movement).
+* Restrict management access by setting `ssh_cidr_blocks` to your operator public IP (e.g. `["190.18.171.24/32"]`).
+* Ensure `key_pair_name` matches an existing AWS EC2 key pair in your account/region.
 
 ---
 
 # Repository Structure
 
 ```
-LAB01/
-│
-├ terraform configuration
-├ userdata/
-│   ├ redirector bootstrap
-│   └ target lab bootstrap
-│
-└ scripts/
-    operational helpers
+CORE/   # persistent shared infra (VPC, redirector, bucket)
+LAB01/  # Linux lab targets (linux01 + linux02)
+LAB02/  # Windows lab targets (AD + workstations)
+docs/   # architecture + security + notes
 ```
 
 ---
@@ -234,8 +258,9 @@ This lab can be used for:
 
 Additional documentation:
 
-* ARCHITECTURE.md – detailed infrastructure design
-* SECURITY.md – responsible use policy
+* `docs/ARCHITECTURE.md` – detailed infrastructure design and deployment notes
+* `docs/SECURITY.md` – responsible use policy
+* `docs/user-guide/README.md` – lab user guide (operator workflow + exercises index)
 
 ---
 

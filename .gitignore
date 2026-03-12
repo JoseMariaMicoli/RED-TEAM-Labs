@@ -43,3 +43,10 @@ cloudflared/*.yaml
 
 # Beacon payload artifacts (do not commit)
 **/beacon
+
+# Generated presigned URL lists (contain time-bound URLs)
+docs/presigned_urls*.txt
+
+# Python bytecode
+__pycache__/
+*.pyc

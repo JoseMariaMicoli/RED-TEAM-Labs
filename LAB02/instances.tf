@@ -18,6 +18,7 @@ resource "aws_instance" "dc" {
     windows_admin_password = var.windows_admin_password
     win10_01_user          = var.win10_01_user
     win10_01_user_password = var.win10_01_user_password
+    flag_apt29_lab02_2     = local.lab02_flags["APT29-LAB02-2"]
   })
 
   root_block_device {
@@ -51,6 +52,9 @@ resource "aws_instance" "win10_01" {
     windows_admin_password = var.windows_admin_password
     admin_over_peer        = false
     peer_admin_user        = var.win10_01_user
+    flag_apt28_lab02_1     = local.lab02_flags["APT28-LAB02-1"]
+    flag_apt29_lab02_1     = local.lab02_flags["APT29-LAB02-1"]
+    flag_lazarus_lab02_1   = ""
   })
 
   root_block_device {
@@ -84,6 +88,9 @@ resource "aws_instance" "win10_02" {
     windows_admin_password = var.windows_admin_password
     admin_over_peer        = true
     peer_admin_user        = var.win10_01_user
+    flag_apt28_lab02_1     = ""
+    flag_apt29_lab02_1     = ""
+    flag_lazarus_lab02_1   = local.lab02_flags["LAZARUS-LAB02-1"]
   })
 
   root_block_device {
