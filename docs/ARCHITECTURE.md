@@ -62,13 +62,15 @@ Operator Laptop
 Sliver / Havoc C2
   │
   ▼
-Compromised Host (linux01)
+LAB01 Foothold Subnet (10.0.1.0/24)
+  └─ nyxera-rt-target-ubuntu-01 (linux01)
   │
   ▼
-Internal Pivot
+Internal Discovery + Pivot
   │
   ▼
-Internal Host (linux02)
+Internal Subnet (10.0.2.0/24)
+  └─ nyxera-rt-lateral-target-ubuntu-02 (linux02)
 ```
 
 This layered architecture ensures that the **real C2 server is never directly exposed to the internet** while still allowing realistic post-exploitation scenarios.
@@ -392,7 +394,7 @@ Configured components (Terraform-managed):
    * A shared local user `devops` exists on both hosts.
    * The same lab-only password is configured for `devops` on both hosts (variable: `devops_password`).
    * SSH password authentication is enabled on both hosts.
-   * The LAB01 security group allows TCP/22 within the VPC CIDR for host-to-host movement.
+   * The lateral target is deployed in a private internal subnet and is intended to be reachable **only** from the foothold subnet (pivot required).
 
 2) **Internal file share (NFSv4)**
    * `linux02` exports an NFSv4 share at `/srv/ops-share` to the VPC CIDR.
@@ -407,6 +409,9 @@ Operational notes:
 
 * These settings are intentionally weak and are meant only for isolated lab environments.
 * The `linux02` private IP is kept stable via `linux02_private_ip` (used by the NFS mount).
+* LAB01 now uses two subnets:
+  * `10.0.1.0/24` — foothold subnet (linux01)
+  * `10.0.2.0/24` — internal subnet (linux02, no public IP)
 
 Example attack path:
 
@@ -424,7 +429,7 @@ Pivot using tunneling tools
 (chisel / ligolo / socat)
    │
    ▼
-Access linux02
+Access linux02 (internal subnet)
 ```
 
 This allows testing:

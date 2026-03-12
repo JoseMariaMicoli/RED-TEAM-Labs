@@ -18,7 +18,7 @@ variable "devops_password" {
 variable "linux02_private_ip" {
   description = "Static private IP for the lateral target (kept stable for NFS + internal connectivity)."
   type        = string
-  default     = "10.0.1.222"
+  default     = "10.0.2.222"
 }
 
 variable "target_instance_type" {

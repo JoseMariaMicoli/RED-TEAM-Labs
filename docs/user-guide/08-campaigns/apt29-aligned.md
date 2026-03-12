@@ -12,6 +12,7 @@ Focus:
 
 * Establish initial foothold on LAB01 linux01.
 * Use linux01 as a pivot point to reach LAB01 linux02 via the internal lab path.
+* Perform internal discovery to identify the hidden internal subnet and host reference (`backup.internal`) before pivoting.
 * Validate internal share access and capture:
   * `APT29-LAB01-1` (linux01)
   * `APT29-LAB01-2` (internal share / linux02 objective)
@@ -41,4 +42,3 @@ Document techniques appropriate to your run (examples):
 * Discovery (network/service/identity)
 * Lateral Movement (lab-scoped)
 * Collection (dummy artifacts)
-

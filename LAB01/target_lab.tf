@@ -63,6 +63,39 @@ resource "aws_security_group" "target_lab" {
   })
 }
 
+resource "aws_security_group" "lateral_target" {
+  name        = "lateral-target-sg"
+  description = "Traffic for the internal lateral target (private subnet)"
+  vpc_id      = data.terraform_remote_state.core.outputs.vpc_id
+
+  ingress {
+    description = "SSH from foothold subnet only (pivot required)"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.1.0/24"]
+  }
+
+  ingress {
+    description = "NFSv4 (VPC internal)"
+    from_port   = 2049
+    to_port     = 2049
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.lab.cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, {
+    Purpose = "lateral-target-sg"
+  })
+}
+
 resource "aws_instance" "target_lab" {
   ami           = data.aws_ami.ubuntu_latest.id
   instance_type = var.target_instance_type

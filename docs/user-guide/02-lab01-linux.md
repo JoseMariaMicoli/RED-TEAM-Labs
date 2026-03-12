@@ -30,6 +30,10 @@ Use LAB01 for exercises such as:
 * internal file share discovery and access (NFS)
 * basic operational hygiene (credential rotation, least privilege, teardown discipline)
 
+Discovery emphasis (host discovery challenge):
+* The lateral target is in an internal subnet and does not have a public IP.
+* Operators should avoid printing internal IPs in documentation; discover them via host artifacts (SSH configs, mounts, DNS/hosts entries) and internal enumeration.
+
 ## What to Collect (Artifacts)
 
 During exercises, capture:

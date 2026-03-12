@@ -4,6 +4,7 @@ output "target_ubuntu_01_public_ip" {
 }
 
 output "lateral_target_ubuntu_02_public_ip" {
-  description = "Public IP for nyxera-rt-lateral-target-ubuntu-02"
-  value       = aws_instance.linux02.public_ip
+  description = "Private IP for nyxera-rt-lateral-target-ubuntu-02 (kept stable; do not expose publicly)"
+  value       = aws_instance.linux02.private_ip
+  sensitive   = true
 }

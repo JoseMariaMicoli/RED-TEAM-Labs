@@ -86,7 +86,8 @@ mount_nfs_share() {
   mkdir -p "$${NFS_MOUNT_PATH}"
 
   if ! grep -qE "^[^#].*$${NFS_MOUNT_PATH}[[:space:]]" /etc/fstab; then
-    echo "$${NFS_SERVER_IP}:$${NFS_EXPORT_PATH} $${NFS_MOUNT_PATH} nfs4 defaults,vers=4.1,_netdev,nofail 0 0" >>/etc/fstab
+    # Use an internal hostname to support discovery-style exercises.
+    echo "backup.internal:$${NFS_EXPORT_PATH} $${NFS_MOUNT_PATH} nfs4 defaults,vers=4.1,_netdev,nofail 0 0" >>/etc/fstab
   fi
 
   local attempts=0
@@ -152,6 +153,7 @@ bring_up() {
 seed_case_data() {
   info "Seeding lab-only case files and rotating flags"
   mkdir -p /opt/nyxera/cases /opt/nyxera/flags
+  mkdir -p /home/devops/.ssh
 
   cat <<'EOF' >/opt/nyxera/cases/README.md
 # LAB01 linux01 - Case Artifacts (Lab-Only)
@@ -171,6 +173,24 @@ EOF
   cat <<EOF >/opt/nyxera/flags/APT29-LAB01-1.flag
 $${FLAG_APT29_LAB01_1}
 EOF
+
+  # Host discovery challenge (lab-only):
+  # Provide realistic internal references without printing the lateral target IP in Terraform outputs/docs.
+  cat <<EOF >/home/devops/.ssh/config
+Host backup
+    HostName backup.internal
+    User devops
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+EOF
+
+  chown -R devops:devops /home/devops/.ssh || true
+  chmod 0700 /home/devops/.ssh || true
+  chmod 0600 /home/devops/.ssh/config || true
+
+  if ! grep -qE "^[[:space:]]*$${NFS_SERVER_IP}[[:space:]]+backup\\.internal" /etc/hosts; then
+    echo "$${NFS_SERVER_IP} backup.internal" >>/etc/hosts
+  fi
 
   # Hint artifacts: dummy-but-realistic operator notes that point into the lab's internal share.
   cat <<'EOF' >/opt/nyxera/cases/it-helpdesk-ticket.txt

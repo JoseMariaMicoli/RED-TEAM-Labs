@@ -8,6 +8,16 @@ output "subnet_id" {
   value       = aws_subnet.lab_subnet.id
 }
 
+output "internal_subnet_id" {
+  description = "Subnet ID for the internal (private) lab subnet"
+  value       = aws_subnet.internal_subnet.id
+}
+
+output "internal_subnet_cidr" {
+  description = "CIDR for the internal (private) lab subnet"
+  value       = aws_subnet.internal_subnet.cidr_block
+}
+
 output "payloads_bucket_url" {
   description = "S3 virtual-hosted bucket endpoint (use presigned URLs for object access)"
   value       = "https://${aws_s3_bucket.payloads.bucket}.s3.amazonaws.com"

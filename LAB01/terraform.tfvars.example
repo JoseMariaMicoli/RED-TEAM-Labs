@@ -1,6 +1,6 @@
 aws_region       = "us-east-1"
 ssh_cidr_blocks  = ["190.18.171.24/32"]
 devops_password  = "ChangeMe-DevOps-01"
-linux02_private_ip = "10.0.1.222"
+linux02_private_ip = "10.0.2.222"
 target_instance_type = "t3.small"
 key_pair_name    = "redteam-lab-key"
