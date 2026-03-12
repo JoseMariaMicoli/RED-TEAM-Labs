@@ -1,22 +1,9 @@
-output "redirector_ip" {
-
-  description = "Elastic IP assigned to the AWS redirector"
-  value       = local.redirector_ip
-}
-
-output "payload_bucket_url" {
-
-  description = "S3 bucket endpoint used for payload hosting"
-  value       = local.payload_bucket_domain_name
-}
-
-output "lab_domain" {
-
-  description = "Fronting domain used by the Nyxera lab"
-  value       = var.lab_domain
-}
-
-output "target_lab_ip" {
-  description = "Live public IP for the vulnerable target lab instance"
+output "target_ubuntu_01_public_ip" {
+  description = "Public IP for nyxera-rt-target-ubuntu-01"
   value       = aws_instance.target_lab.public_ip
+}
+
+output "lateral_target_ubuntu_02_public_ip" {
+  description = "Public IP for nyxera-rt-lateral-target-ubuntu-02"
+  value       = aws_instance.linux02.public_ip
 }

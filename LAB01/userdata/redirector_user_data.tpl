@@ -8,6 +8,15 @@ export HOME=/root
 info() { printf '%s %s\n' "[INFO]" "$*"; }
 warn() { printf '%s %s\n' "[WARN]" "$*"; }
 
+configure_hostname() {
+  local hostname="nyxera-rt-redirector-ubuntu-01"
+  info "Setting hostname to $${hostname}"
+  hostnamectl set-hostname "$${hostname}"
+  if ! grep -qE "^[[:space:]]*127\\.0\\.1\\.1[[:space:]]+$${hostname}([[:space:]]|$)" /etc/hosts; then
+    echo "127.0.1.1 $${hostname}" >>/etc/hosts
+  fi
+}
+
 readonly WG_PRIVATE_KEY="${wireguard_private_key}"
 readonly WG_PEER_PUBLIC_KEY="${wireguard_peer_public_key}"
 readonly WG_PEER_ENDPOINT="${wireguard_peer_endpoint}"
@@ -31,6 +40,7 @@ wait_for_apt() {
 }
 
 install_packages() {
+  configure_hostname
   wait_for_apt
   info "Updating apt cache"
   DEBIAN_FRONTEND=noninteractive apt-get update -y
@@ -107,6 +117,20 @@ server {
         error_page 502 503 504 =404 /notfound;
     }
 
+    location ^~ /cdn/api/v4 {
+        proxy_pass http://${havoc_upstream};
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_connect_timeout 2s;
+        proxy_send_timeout 5s;
+        proxy_read_timeout 5s;
+        proxy_intercept_errors on;
+        error_page 502 503 504 =404 /notfound;
+    }
+
     location / {
         return 404 'Not Found';
     }
@@ -127,6 +151,20 @@ server {
 
     location ^~ /cdn/api/v3 {
         proxy_pass http://${proxy_upstream};
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_connect_timeout 2s;
+        proxy_send_timeout 5s;
+        proxy_read_timeout 5s;
+        proxy_intercept_errors on;
+        error_page 502 503 504 =404 /notfound;
+    }
+
+    location ^~ /cdn/api/v4 {
+        proxy_pass http://${havoc_upstream};
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;

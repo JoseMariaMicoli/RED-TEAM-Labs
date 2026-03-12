@@ -1,0 +1,26 @@
+aws_region = "us-east-1"
+
+key_pair_name = "redteam-lab-key"
+
+# Lock RDP down to your operator IP (same as LAB01 defaults you were using).
+rdp_cidr_blocks = ["190.18.171.24/32"]
+
+# Instances (3x t3.micro)
+dc_instance_type     = "t3.micro"
+client_instance_type = "t3.micro"
+
+# DC/DNS AMI: default uses Windows Server 2022 Core.
+dc_ami_id = ""
+
+# Workstations AMI: default uses Windows Server 2022 Core (no Marketplace dependency).
+client_ami_id = ""
+
+# Domain + credentials (these end up in EC2 user_data; treat as lab-only secrets).
+ad_domain_name           = "lumenworks.internal"
+windows_admin_password   = "ChangeMe-StrongPassword-01"
+ad_safe_mode_password    = "ChangeMe-StrongPassword-01"
+win10_01_user            = "it.support"
+win10_01_user_password   = "ChangeMe-StrongPassword-02"
+
+# Keep DC stable for DNS.
+dc_private_ip = "10.0.1.10"

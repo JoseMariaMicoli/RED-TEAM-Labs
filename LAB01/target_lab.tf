@@ -1,7 +1,7 @@
 resource "aws_security_group" "target_lab" {
   name        = "target-lab-sg"
   description = "Traffic for the vulnerable target lab applications"
-  vpc_id      = aws_vpc.redteam_vpc.id
+  vpc_id      = data.terraform_remote_state.core.outputs.vpc_id
 
   ingress {
     description = "Juice Shop HTTP"
@@ -35,6 +35,22 @@ resource "aws_security_group" "target_lab" {
     cidr_blocks = var.ssh_cidr_blocks
   }
 
+  ingress {
+    description = "SSH lateral movement (VPC internal)"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.lab.cidr_block]
+  }
+
+  ingress {
+    description = "NFSv4 (VPC internal)"
+    from_port   = 2049
+    to_port     = 2049
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.lab.cidr_block]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -50,7 +66,7 @@ resource "aws_security_group" "target_lab" {
 resource "aws_instance" "target_lab" {
   ami           = data.aws_ami.ubuntu_latest.id
   instance_type = var.target_instance_type
-  subnet_id     = aws_subnet.lab_subnet.id
+  subnet_id     = data.terraform_remote_state.core.outputs.subnet_id
 
   vpc_security_group_ids = [
     aws_security_group.target_lab.id
@@ -58,7 +74,13 @@ resource "aws_instance" "target_lab" {
 
   key_name = data.aws_key_pair.lab_key.key_name
 
-  user_data = file("${path.module}/userdata/target_lab_bootstrap.sh")
+  user_data = templatefile("${path.module}/userdata/target_lab_bootstrap.sh.tpl", {
+    devops_password     = var.devops_password
+    nfs_server_ip       = var.linux02_private_ip
+    nfs_mount_path      = "/mnt/ops-share"
+    nfs_export_path     = "/srv/ops-share"
+    enable_password_ssh = true
+  })
 
   root_block_device {
     volume_size           = 20
@@ -67,6 +89,6 @@ resource "aws_instance" "target_lab" {
   }
 
   tags = merge(local.common_tags, {
-    Name = "vulnerable-target"
+    Name = "nyxera-rt-target-ubuntu-01"
   })
 }
